@@ -1,702 +1,664 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ブルアカAIアキネーター</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons CDN -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts Inter -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
-    
-    <style>
-        body {
-            font-family: 'Zen Maru Gothic', 'Inter', sans-serif;
-            background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 50%, #e0e7ff 100%);
-            min-height: 100vh;
-        }
-        
-        .schale-glass {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.6);
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AronaKinator</title>
+  <style>
+    :root {
+      --bg-color: #f0f4f8;
+      --card-bg: #ffffff;
+      --primary-blue: #00a0e9;
+      --secondary-blue: #e8f5ff;
+      --accent-pink: #ff6b9d;
+      --text-main: #2b3a4a;
+      --text-muted: #6c7a89;
+      --border-color: #d1e3f0;
+      --schale-gradient: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+    }
 
-        .chat-bubble-ai {
-            background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
-            border: 1.5px solid #bae6fd;
-            border-radius: 18px 18px 18px 4px;
-            color: #0c4a6e;
-        }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
 
-        .chat-bubble-user {
-            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
-            border-radius: 18px 18px 4px 18px;
-            color: #ffffff;
-        }
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 10px;
+    }
 
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: rgba(224, 242, 254, 0.5);
-            border-radius: 8px;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #7dd3fc;
-            border-radius: 8px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #38bdf8;
-        }
+    .app-container {
+      width: 100%;
+      max-width: 600px;
+      height: 92vh;
+      background: var(--card-bg);
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 160, 233, 0.15);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+    }
 
-        @keyframes pulse-subtle {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.85; transform: scale(0.98); }
-        }
-        .animate-pulse-subtle {
-            animation: pulse-subtle 3s infinite ease-in-out;
-        }
-    </style>
+    /* Header */
+    .header {
+      background: var(--schale-gradient);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 2px solid #bce0fd;
+    }
 
-    <!-- Firebase SDK Modules -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, onSnapshot, setDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
 
-        window.initFirebaseSystem = async function() {
-            try {
-                const appId = typeof __app_id !== 'undefined' ? __app_id : 'ba- guessing-game';
-                const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+    .schale-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      flex-shrink: 0;
+    }
 
-                if (!firebaseConfig) {
-                    console.warn("Firebase configuration missing, running in local mode.");
-                    return;
-                }
+    .title-area h1 {
+      font-size: 1.25rem;
+      color: #1a365d;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
 
-                const app = initializeApp(firebaseConfig);
-                const auth = getAuth(app);
-                const db = getFirestore(app);
+    .title-area p {
+      font-size: 0.7rem;
+      color: #4a5568;
+      font-weight: 600;
+    }
 
-                // Authentication
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
+    .header-actions {
+      display: flex;
+      gap: 8px;
+    }
 
-                window.dbInstance = db;
-                window.appIdInstance = appId;
+    .btn-header {
+      background: #ffffff;
+      color: var(--primary-blue);
+      border: 1.5px solid var(--primary-blue);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
 
-                // Subscribe to stats document
-                const statsDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'stats', 'counter');
-                
-                onSnapshot(statsDocRef, (docSnap) => {
-                    if (docSnap.exists()) {
-                        const data = docSnap.data();
-                        const el = document.getElementById('globalPlayCount');
-                        if (el && data.totalPlays !== undefined) {
-                            el.textContent = data.totalPlays.toLocaleString();
-                        }
-                    } else {
-                        // Initialize counter document
-                        setDoc(statsDocRef, { totalPlays: 1 }, { merge: true });
-                    }
-                }, (error) => {
-                    console.warn("Firestore snapshot error:", error);
-                });
+    .btn-header:hover {
+      background: var(--primary-blue);
+      color: #ffffff;
+    }
 
-                window.incrementPlayCounter = async function() {
-                    try {
-                        await setDoc(statsDocRef, { totalPlays: increment(1) }, { merge: true });
-                    } catch (e) {
-                        console.warn("Could not increment counter:", e);
-                    }
-                };
+    /* Chat Area */
+    .chat-area {
+      flex: 1;
+      padding: 16px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background: #f8fafc;
+    }
 
-            } catch (err) {
-                console.warn("Firebase initialization skipped or failed:", err);
-            }
-        };
-    </script>
+    .message {
+      display: flex;
+      gap: 10px;
+      max-width: 85%;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .message.arona {
+      align-self: flex-start;
+    }
+
+    .message.user {
+      align-self: flex-end;
+      flex-direction: row-reverse;
+    }
+
+    .msg-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .msg-bubble {
+      padding: 10px 14px;
+      border-radius: 16px;
+      font-size: 0.95rem;
+      line-height: 1.45;
+      position: relative;
+      word-break: break-word;
+    }
+
+    .message.arona .msg-bubble {
+      background: #ffffff;
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      border-top-left-radius: 4px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+
+    .message.user .msg-bubble {
+      background: var(--primary-blue);
+      color: #ffffff;
+      border-top-right-radius: 4px;
+    }
+
+    .chat-reset-btn {
+      margin-top: 10px;
+      display: inline-block;
+      background: var(--accent-pink);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: bold;
+      font-size: 0.85rem;
+      cursor: pointer;
+      box-shadow: 0 3px 6px rgba(255, 107, 157, 0.3);
+      transition: transform 0.1s;
+    }
+
+    .chat-reset-btn:active {
+      transform: scale(0.96);
+    }
+
+    /* Controls & Presets */
+    .controls-area {
+      padding: 12px 16px;
+      background: #ffffff;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .preset-chips {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      scrollbar-width: none;
+    }
+
+    .preset-chips::-webkit-scrollbar {
+      display: none;
+    }
+
+    .chip {
+      background: var(--secondary-blue);
+      color: var(--primary-blue);
+      border: 1px solid #b3dcfd;
+      padding: 6px 12px;
+      border-radius: 16px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .chip:hover {
+      background: #d0eaff;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .chat-input {
+      flex: 1;
+      padding: 10px 14px;
+      border: 1.5px solid var(--border-color);
+      border-radius: 24px;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .chat-input:focus {
+      border-color: var(--primary-blue);
+    }
+
+    .btn-send {
+      background: var(--primary-blue);
+      color: white;
+      border: none;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background 0.2s;
+    }
+
+    .btn-send:hover {
+      background: #0082c3;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.4);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal {
+      background: white;
+      padding: 20px;
+      border-radius: 16px;
+      width: 90%;
+      max-width: 380px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+
+    .modal h3 {
+      font-size: 1.1rem;
+      color: var(--text-main);
+      margin-bottom: 8px;
+    }
+
+    .modal p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+      line-height: 1.4;
+    }
+
+    .modal input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 0.95rem;
+      margin-bottom: 14px;
+    }
+
+    .modal-buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .btn-modal {
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .btn-modal.cancel {
+      background: #edf2f7;
+      color: #4a5568;
+    }
+
+    .btn-modal.save {
+      background: var(--primary-blue);
+      color: white;
+    }
+  </style>
 </head>
-<body class="text-slate-800 antialiased p-2 sm:p-4 md:p-6">
+<body>
 
-    <div class="max-w-5xl mx-auto space-y-4">
-
-        <!-- HEADER -->
-        <header class="schale-glass rounded-2xl p-3 sm:p-4 shadow-lg flex flex-wrap items-center justify-between gap-3 border border-white/80">
-            <div class="flex items-center gap-3">
-                <!-- SCHALE Logo Emblem -->
-                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-tr from-sky-400 via-indigo-300 to-sky-100 p-0.5 shadow-md flex items-center justify-center shrink-0">
-                    <div class="w-full h-full bg-slate-900 rounded-[10px] flex items-center justify-center relative overflow-hidden">
-                        <svg viewBox="0 0 100 100" class="w-7 h-7 text-sky-300 fill-current">
-                            <circle cx="50" cy="50" r="42" fill="none" stroke="currentColor" stroke-width="4" opacity="0.4"/>
-                            <path d="M35,30 L65,30 L65,42 L48,42 L48,52 L65,52 L65,70 L35,70 L35,58 L52,58 L52,48 L35,48 Z" fill="currentColor"/>
-                        </svg>
-                    </div>
-                </div>
-
-                <div>
-                    <div class="flex items-center gap-2">
-                        <h1 class="text-base sm:text-xl font-black text-slate-800 tracking-tight">ブルアカAIアキネーター</h1>
-                        <!-- SCHALE Tag -->
-                        <span class="px-2 py-0.5 text-[10px] sm:text-xs font-bold rounded-md bg-sky-500 text-white shadow-sm">SCHALE</span>
-                    </div>
-                    <!-- Counter Display -->
-                    <div class="text-xs text-sky-700 font-semibold flex items-center gap-1.5 mt-0.5">
-                        <i class="fa-solid fa-gamepad text-sky-500"></i>
-                        <span>総プレイ数: <strong id="globalPlayCount" class="text-sky-900 font-extrabold">128</strong> 回</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Controls -->
-            <div class="flex items-center gap-2 flex-wrap">
-                <!-- Hidden file input for custom avatar -->
-                <input type="file" id="iconFileInput" accept="image/*" class="hidden">
-
-                <button id="setTargetBtn" class="px-3.5 py-2 text-xs rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-extrabold transition flex items-center gap-1.5 shadow-md active:scale-95">
-                    <i class="fa-solid fa-bullseye"></i>
-                    <span>お題を指定する</span>
-                </button>
-
-                <button id="restartBtn" class="px-3.5 py-2 text-xs rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-extrabold transition flex items-center gap-1.5 shadow-md active:scale-95">
-                    <i class="fa-solid fa-rotate-right"></i>
-                    <span>新しいゲーム</span>
-                </button>
-            </div>
-        </header>
-
-        <!-- MAIN GRID -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-
-            <!-- LEFT PANEL: Game Status & Hints -->
-            <div class="lg:col-span-1 space-y-4">
-                <div class="schale-glass rounded-2xl p-4 shadow-md border border-white/80">
-                    <div class="flex items-center gap-3.5 mb-3">
-                        <!-- ARONA AVATAR ICON -->
-                        <div class="relative w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-tr from-sky-300 via-sky-200 to-indigo-200 p-0.5 shadow-lg shrink-0 overflow-hidden border-2 border-white">
-                            <div id="aronaAvatarContainer" class="w-full h-full rounded-xl overflow-hidden flex items-center justify-center bg-sky-100">
-                                <!-- Populated dynamically by JS -->
-                            </div>
-                            <span class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full"></span>
-                        </div>
-
-                        <div>
-                            <div class="text-xs text-sky-600 font-bold uppercase tracking-wider">GAME MASTER</div>
-                            <h2 class="text-base font-extrabold text-slate-800">アロナ (AI)</h2>
-                            <span id="targetStatusBadge" class="inline-block mt-1 px-2 py-0.5 text-[11px] font-bold rounded-md bg-emerald-100 text-emerald-700 border border-emerald-300">
-                                お題設定済み (ランダム)
-                            </span>
-                        </div>
-                    </div>
-
-                    <!-- Question Counter Card -->
-                    <div class="mt-3 p-3 bg-sky-50/80 rounded-xl border border-sky-100 flex items-center justify-between">
-                        <span class="text-xs text-slate-600 font-bold">現在の質問数:</span>
-                        <div class="text-lg font-black text-sky-600"><span id="questionCountEl">0</span> <span class="text-xs font-normal text-slate-500">回</span></div>
-                    </div>
-                </div>
-
-                <!-- HINTS PANEL -->
-                <div class="schale-glass rounded-2xl p-4 shadow-md border border-white/80">
-                    <div class="flex items-center justify-between mb-2">
-                        <h3 class="text-xs font-extrabold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
-                            <i class="fa-solid fa-lightbulb text-amber-400"></i>
-                            <span>解放されたヒント</span>
-                        </h3>
-                        <span class="text-[10px] px-2 py-0.5 bg-sky-100 text-sky-700 rounded-full font-bold">5回目で解放</span>
-                    </div>
-
-                    <div id="hintContainer" class="space-y-2 min-h-[80px]">
-                        <p id="noHintText" class="text-xs text-slate-400 italic text-center py-6">質問が5回に達すると、アロナからヒントが送られます！</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- RIGHT PANEL: Interactive Chat Window -->
-            <div class="lg:col-span-2 flex flex-col h-[520px] sm:h-[600px] schale-glass rounded-2xl shadow-md border border-white/80 overflow-hidden">
-                
-                <!-- Chat Log Area -->
-                <div id="chatContainer" class="flex-1 p-4 overflow-y-auto space-y-3.5">
-                    <!-- Dynamic chat messages go here -->
-                </div>
-
-                <!-- Bottom Controls / Input Area -->
-                <div class="p-3 sm:p-4 bg-white/70 border-t border-sky-100 space-y-2.5">
-                    
-                    <!-- Preset Question Chips -->
-                    <div class="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
-                        <span class="text-[10px] text-slate-400 font-bold shrink-0 mr-1">定型質問:</span>
-                        <button class="preset-btn px-2.5 py-1 bg-sky-100 hover:bg-sky-200 text-sky-800 rounded-lg transition font-bold shrink-0 border border-sky-200 active:scale-95" data-text="三大校ですか？">
-                            三大校ですか？
-                        </button>
-                        <button id="hairColorPresetBtn" class="px-2.5 py-1 bg-sky-100 hover:bg-sky-200 text-sky-800 rounded-lg transition font-bold shrink-0 border border-sky-200 active:scale-95">
-                            髪の色は◯◯ですか？
-                        </button>
-                        <button class="preset-btn px-2.5 py-1 bg-sky-100 hover:bg-sky-200 text-sky-800 rounded-lg transition font-bold shrink-0 border border-sky-200 active:scale-95" data-text="生徒ですか？">
-                            生徒ですか？
-                        </button>
-                    </div>
-
-                    <!-- Input Form -->
-                    <form id="chatForm" class="flex items-center gap-2">
-                        <input type="text" id="userInput" placeholder="質問または解答を入力してください..." class="flex-1 bg-white border border-sky-200 rounded-xl px-4 py-2.5 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-transparent transition shadow-inner font-medium">
-                        <button type="submit" id="sendBtn" class="px-4 py-2.5 bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-600 hover:to-indigo-700 text-white font-extrabold text-xs sm:text-sm rounded-xl shadow-md transition flex items-center gap-1.5 shrink-0 active:scale-95">
-                            <span>送信</span>
-                            <i class="fa-solid fa-paper-plane text-xs"></i>
-                        </button>
-                    </form>
-                </div>
-            </div>
-
-        </div>
+<div class="app-container">
+  <!-- Header -->
+  <header class="header">
+    <div class="header-left">
+      <svg class="schale-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="schaleBg" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#b6e3ff"/>
+            <stop offset="100%" stop-color="#e1f3ff"/>
+          </linearGradient>
+        </defs>
+        <rect width="100" height="100" rx="20" fill="url(#schaleBg)"/>
+        <path d="M 30 25 L 70 25 C 75 25 80 30 75 40 L 40 55 C 35 58 35 68 45 70 L 70 70" fill="none" stroke="#00a0e9" stroke-width="8" stroke-linecap="round"/>
+        <circle cx="70" cy="25" r="4" fill="#ff6b9d"/>
+        <text x="50" y="88" font-size="8" font-weight="900" fill="#1a365d" text-anchor="middle" letter-spacing="0.5">WELCOME, SENSEI.</text>
+      </svg>
+      <div class="title-area">
+        <h1>AronaKinator</h1>
+        <p>SCHALE AI ASSISTANT</p>
+      </div>
     </div>
-
-    <!-- SET TARGET MODAL -->
-    <div id="targetModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-2xl max-w-md w-full p-5 sm:p-6 shadow-2xl border border-sky-100 space-y-4">
-            <div class="flex items-center justify-between border-b pb-3">
-                <h3 class="text-base font-extrabold text-slate-800 flex items-center gap-2">
-                    <i class="fa-solid fa-bullseye text-amber-500"></i>
-                    <span>お題の生徒を指定する</span>
-                </h3>
-                <button id="closeModalBtn" class="text-slate-400 hover:text-slate-600 text-lg p-1">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-
-            <p class="text-xs text-slate-600 leading-relaxed">
-                複数人で遊ぶときなど、自由にお題の生徒を決めることができます。入力したお題はAIが把握します。
-            </p>
-
-            <div class="space-y-3">
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">生徒の名前を入力:</label>
-                    <input type="text" id="customStudentInput" placeholder="例: 砂狼シロコ" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-sky-400 font-medium">
-                </div>
-            </div>
-
-            <div class="flex items-center justify-end gap-2 pt-2">
-                <button id="cancelModalBtn" class="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition">
-                    キャンセル
-                </button>
-                <button id="confirmTargetBtn" class="px-4 py-2 text-xs font-extrabold bg-amber-500 hover:bg-amber-600 text-white rounded-xl shadow transition">
-                    お題を確定する
-                </button>
-            </div>
-        </div>
+    <div class="header-actions">
+      <button class="btn-header" id="btnSetTarget">ターゲット設定</button>
+      <button class="btn-header" id="btnReset">ニューゲーム</button>
     </div>
+  </header>
 
-    <script>
-        // Preset Blue Archive Students Database
-        const STUDENTS_DATABASE = [
-            { name: "砂狼シロコ", fullName: "砂狼シロコ", school: "アビドス高等高等学校", club: "対策委員会", hairColor: "銀髪", halo: "青いリング状", weapon: "アサルトライフル" },
-            { name: "小鳥遊ホシノ", fullName: "小鳥遊ホシノ", school: "アビドス高等高等学校", club: "対策委員会", hairColor: "ピンク髪", halo: "オッドアイと星型", weapon: "ショットガン" },
-            { name: "早瀬ユウカ", fullName: "早瀬ユウカ", school: "ミレニアムサイエンススクール", club: "セミナー", hairColor: "黒髪・ツインテール", halo: "幾何学模様", weapon: "サブマシンガン" },
-            { name: "天童アリス", fullName: "天童アリス", school: "ミレニアムサイエンススクール", club: "ゲーム開発部", hairColor: "青黒ロング髪", halo: "四角形・ドット調", weapon: "レールガン" },
-            { name: "聖園ミカ", fullName: "聖園ミカ", school: "トリニティ総合学園", club: "ティーパーティ", hairColor: "薄ピンク髪", halo: "星と翼モチーフ", weapon: "サブマシンガン" },
-            { name: "空崎ヒナ", fullName: "空崎ヒナ", school: "ゲヘナ学園", club: "風紀委員会", hairColor: "紫がかった白髪", halo: "巨大なトゲ状", weapon: "マシンガン" },
-            { name: "陸八魔アル", fullName: "陸八魔アル", school: "ゲヘナ学園", club: "便利屋68", hairColor: "赤髪・ツインテール", halo: "角モチーフ", weapon: "スナイパーライフル" },
-            { name: "白州アズサ", fullName: "白州アズサ", school: "トリニティ総合学園", club: "補習授業部", hairColor: "銀髪", halo: "翼と天使モチーフ", weapon: "アサルトライフル" },
-            { name: "下江コハル", fullName: "下江コハル", school: "トリニティ総合学園", club: "補習授業部", hairColor: "ピンク髪", halo: "羽モチーフ", weapon: "スナイパーライフル" },
-            { name: "飛鳥馬トキ", fullName: "飛鳥馬トキ", school: "ミレニアムサイエンススクール", club: "C&C", hairColor: "金髪・ボブ", halo: "時計・メイドモチーフ", weapon: "アサルトライフル" }
-        ];
+  <!-- Chat Log -->
+  <main class="chat-area" id="chatArea"></main>
 
-        // Default SVG SCHALE Icon Data
-        const DEFAULT_SCHALE_SVG = `
-            <svg viewBox="0 0 100 100" class="w-full h-full text-sky-500 fill-current bg-slate-900 p-2">
-                <circle cx="50" cy="50" r="42" fill="none" stroke="#38bdf8" stroke-width="4" opacity="0.6"/>
-                <path d="M35,28 L65,28 L65,40 L48,40 L48,50 L65,50 L65,72 L35,72 L35,60 L52,60 L52,48 L35,48 Z" fill="#ffffff"/>
-            </svg>
-        `;
+  <!-- Control & Presets -->
+  <footer class="controls-area">
+    <div class="preset-chips">
+      <button class="chip" id="chip1">三大校ですか？</button>
+      <button class="chip" id="chip2">髪の色は〇〇ですか？</button>
+      <button class="chip" id="chip3">使用する銃の種類は〇〇ですか？</button>
+    </div>
+    <div class="input-row">
+      <input type="text" id="userInput" class="chat-input" placeholder="質問や生徒の名前を入力..." autocomplete="off">
+      <button id="btnSend" class="btn-send">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13"></line>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+        </svg>
+      </button>
+    </div>
+  </footer>
+</div>
 
-        // State variables
-        let currentStudent = null;
-        let questionCount = 0;
-        let isGameOver = false;
-        let hintGiven = false;
-        let customAronaAvatarUrl = null;
+<!-- Target Set Modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h3>ターゲット生徒の設定</h3>
+    <p>アロナに思い浮かべてもらう生徒の下の名前をカタカナで入力してください。</p>
+    <input type="text" id="targetInput" placeholder="例: ミカ、ユウカ、アリス">
+    <div class="modal-buttons">
+      <button class="btn-modal cancel" id="btnModalCancel">キャンセル</button>
+      <button class="btn-modal save" id="btnModalSave">設定する</button>
+    </div>
+  </div>
+</div>
 
-        // DOM Elements
-        let chatContainer, userInput, chatForm, sendBtn, questionCountEl,
-            targetStatusBadge, hintContainer, noHintText, setTargetBtn,
-            restartBtn, targetModal, closeModalBtn, cancelModalBtn,
-            confirmTargetBtn, customStudentInput, iconFileInput,
-            aronaAvatarContainer, hairColorPresetBtn;
+<script>
+  // 1. 生徒データベース（学園、部活、髪色、銃種、三大校判定を網羅）
+  const STUDENT_DATABASE = [
+    { name: "ミカ", full: "聖園ミカ", school: "トリニティ総合学院", club: "ティーパーティー", hair: "ピンク", gun: "アサルトライフル", big3: true },
+    { name: "ユウカ", full: "早瀬ユウカ", school: "ミレニアムサイエンススクール", club: "セミナー", hair: "黒", gun: "サブマシンガン", big3: true },
+    { name: "アリス", full: "天童アリス", school: "ミレニアムサイエンススクール", club: "ゲーム開発部", hair: "黒", gun: "レールガン", big3: true },
+    { name: "ヒフミ", full: "阿慈谷ヒフミ", school: "トリニティ総合学院", club: "補習授業部", hair: "金", gun: "アサルトライフル", big3: true },
+    { name: "アル", full: "陸八魔アル", school: "ゲヘナ学園", club: "便利屋68", hair: "赤", gun: "スナイパーライフル", big3: true },
+    { name: "シロコ", full: "砂狼シロコ", school: "アビドス高等学校", club: "対策委員会", hair: "白", gun: "アサルトライフル", big3: false },
+    { name: "ホシノ", full: "小鳥遊ホシノ", school: "アビドス高等学校", club: "対策委員会", hair: "ピンク", gun: "ショットガン", big3: false }
+  ];
 
-        window.onload = async function() {
-            chatContainer = document.getElementById('chatContainer');
-            userInput = document.getElementById('userInput');
-            chatForm = document.getElementById('chatForm');
-            sendBtn = document.getElementById('sendBtn');
-            questionCountEl = document.getElementById('questionCountEl');
-            targetStatusBadge = document.getElementById('targetStatusBadge');
-            hintContainer = document.getElementById('hintContainer');
-            noHintText = document.getElementById('noHintText');
-            setTargetBtn = document.getElementById('setTargetBtn');
-            restartBtn = document.getElementById('restartBtn');
-            targetModal = document.getElementById('targetModal');
-            closeModalBtn = document.getElementById('closeModalBtn');
-            cancelModalBtn = document.getElementById('cancelModalBtn');
-            confirmTargetBtn = document.getElementById('confirmTargetBtn');
-            customStudentInput = document.getElementById('customStudentInput');
-            iconFileInput = document.getElementById('iconFileInput');
-            aronaAvatarContainer = document.getElementById('aronaAvatarContainer');
-            hairColorPresetBtn = document.getElementById('hairColorPresetBtn');
+  // アイコンSVG (アロナ)
+  const ARONA_AVATAR = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="%2300a0e9"/><circle cx="50" cy="38" r="22" fill="%23fff"/><path d="M 30 80 Q 50 60 70 80" stroke="%23fff" stroke-width="12" fill="none" stroke-linecap="round"/><circle cx="43" cy="36" r="3" fill="%2300a0e9"/><circle cx="57" cy="36" r="3" fill="%2300a0e9"/></svg>`;
 
-            // Load saved avatar from localStorage if present
-            try {
-                const savedAvatar = localStorage.getItem('ba_arona_avatar_url');
-                if (savedAvatar) customAronaAvatarUrl = savedAvatar;
-            } catch(e) { console.warn("Storage access restricted"); }
+  // ゲーム状態
+  let currentTarget = null;
+  let questionCount = 0;
+  let isGameOver = false;
 
-            updateAvatarUI();
+  // DOM要素
+  const chatArea = document.getElementById('chatArea');
+  const userInput = document.getElementById('userInput');
+  const btnSend = document.getElementById('btnSend');
+  const btnReset = document.getElementById('btnReset');
+  const btnSetTarget = document.getElementById('btnSetTarget');
+  const modalOverlay = document.getElementById('modalOverlay');
+  const targetInput = document.getElementById('targetInput');
+  const btnModalCancel = document.getElementById('btnModalCancel');
+  const btnModalSave = document.getElementById('btnModalSave');
 
-            // Initialize Firebase if available
-            if (window.initFirebaseSystem) {
-                await window.initFirebaseSystem();
-            }
+  const chip1 = document.getElementById('chip1');
+  const chip2 = document.getElementById('chip2');
+  const chip3 = document.getElementById('chip3');
 
-            setupEventListeners();
-            initGame();
-        };
+  // 初期化
+  function initGame(forcedTarget = null) {
+    chatArea.innerHTML = '';
+    questionCount = 0;
+    isGameOver = false;
 
-        // Render Arona Avatar Image / Fallback
-        function renderAronaAvatarHtml() {
-            if (customAronaAvatarUrl) {
-                return `<img src="${customAronaAvatarUrl}" class="w-full h-full object-cover rounded-xl" alt="Arona Icon" onerror="this.src=''; this.onerror=null;">`;
-            }
-            return DEFAULT_SCHALE_SVG;
-        }
+    if (forcedTarget) {
+      currentTarget = forcedTarget;
+    } else {
+      const randomIndex = Math.floor(Math.random() * STUDENT_DATABASE.length);
+      currentTarget = STUDENT_DATABASE[randomIndex];
+    }
 
-        function updateAvatarUI() {
-            aronaAvatarContainer.innerHTML = renderAronaAvatarHtml();
-        }
+    addAronaMessage('先生！アロナが心の中で思い浮かべている生徒さんを当ててみてください！');
+  }
 
-        // Initialize / Reset Game State
-        function initGame(specifiedStudentName = null) {
-            questionCount = 0;
-            isGameOver = false;
-            hintGiven = false;
+  // メッセージ追加
+  function addAronaMessage(text, showNewGameBtn = false) {
+    const msgDiv = document.createElement('div');
+    msgDiv.className = 'message arona';
+    
+    let contentHtml = `<div class="msg-bubble">${text}`;
+    if (showNewGameBtn) {
+      contentHtml += `<br><button class="chat-reset-btn" onclick="initGame()">ニューゲーム（もう一度遊ぶ）</button>`;
+    }
+    contentHtml += `</div>`;
 
-            if (specifiedStudentName) {
-                currentStudent = {
-                    name: specifiedStudentName.trim(),
-                    fullName: specifiedStudentName.trim(),
-                    isCustom: true
-                };
-                targetStatusBadge.textContent = "お題設定済み (指定)";
-                targetStatusBadge.className = "inline-block mt-1 px-2 py-0.5 text-[11px] font-bold rounded-md bg-amber-100 text-amber-800 border border-amber-300";
-            } else {
-                const randomIdx = Math.floor(Math.random() * STUDENTS_DATABASE.length);
-                currentStudent = STUDENTS_DATABASE[randomIdx];
-                targetStatusBadge.textContent = "お題設定済み (ランダム)";
-                targetStatusBadge.className = "inline-block mt-1 px-2 py-0.5 text-[11px] font-bold rounded-md bg-emerald-100 text-emerald-700 border border-emerald-300";
-            }
+    msgDiv.innerHTML = `
+      <img src="${ARONA_AVATAR}" class="msg-avatar" alt="Arona">
+      ${contentHtml}
+    `;
+    chatArea.appendChild(msgDiv);
+    chatArea.scrollTop = chatArea.scrollHeight;
+  }
 
-            questionCountEl.textContent = questionCount;
-            chatContainer.innerHTML = '';
-            hintContainer.innerHTML = '<p id="noHintText" class="text-xs text-slate-400 italic text-center py-6">質問が5回に達すると、アロナからヒントが送られます！</p>';
+  function addUserMessage(text) {
+    const msgDiv = document.createElement('div');
+    msgDiv.className = 'message user';
+    msgDiv.innerHTML = `<div class="msg-bubble">${text}</div>`;
+    chatArea.appendChild(msgDiv);
+    chatArea.scrollTop = chatArea.scrollHeight;
+  }
 
-            // Initial Arona Greeting Message
-            appendAiChatMessage("先生！アロナが心に思い浮かべている生徒さんを当ててください！");
+  // カタカナ検出
+  function isKatakanaName(text) {
+    const clean = text.replace(/[？\?ですかりか]/g, '').trim();
+    return /^[\u30A0-\u30FF]+$/.test(clean) && clean.length >= 1 && clean.length <= 6;
+  }
 
-            if (window.incrementPlayCounter) {
-                window.incrementPlayCounter();
-            }
-        }
+  // 質問・回答の処理メイン
+  function handleInput() {
+    const text = userInput.value.trim();
+    if (!text || isGameOver) return;
 
-        function setupEventListeners() {
-            // Preset Question Click Handlers
-            document.querySelectorAll('.preset-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const text = e.currentTarget.getAttribute('data-text');
-                    userInput.value = text;
-                    userInput.focus();
-                });
-            });
+    userInput.value = '';
+    addUserMessage(text);
 
-            // Special Hair Color Preset Handler
-            hairColorPresetBtn.addEventListener('click', () => {
-                userInput.value = "髪の色は「」ですか？";
-                userInput.focus();
-                // Set text cursor right inside 「」
-                setTimeout(() => {
-                    userInput.setSelectionRange(5, 5);
-                }, 10);
-            });
+    // 1. デバッグコマンド「コマンド2」
+    if (text === 'コマンド2') {
+      addAronaMessage(`【デバッグ】アロナが思い浮かべている生徒さんは「${currentTarget.full}」（${currentTarget.school} / ${currentTarget.club}所属）です！`, true);
+      isGameOver = true;
+      return;
+    }
 
-            // Chat Form Submission
-            chatForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const text = userInput.value.trim();
-                if (!text || isGameOver) return;
+    // 2. アイコン変更や無意味な入力の防衛ハンドリング
+    if (text.includes('アイコン変更') || text.match(/^(あ+|い+|う+|か+|さ+)$/)) {
+      addAronaMessage('先生、もう一度ちゃんとした質問をお願いします！');
+      return; // カウントを増やすことなく再促し
+    }
 
-                userInput.value = '';
-                handleUserQuestion(text);
-            });
+    // 3. 生徒名の直接推測（カタカナ名前判定）
+    if (isKatakanaName(text) || text.includes('ですか')) {
+      const guessedName = text.replace(/[？\?ですかりか]/g, '').trim();
+      
+      if (guessedName.length >= 1 && (currentTarget.name.includes(guessedName) || guessedName.includes(currentTarget.name))) {
+        addAronaMessage(`大正解です、先生！正解は ${currentTarget.full} さんでした！さすが先生です！`, true);
+        isGameOver = true;
+        return;
+      } else if (isKatakanaName(text)) {
+        questionCount++;
+        addAronaMessage(`いいえ、${guessedName}さんではありません！`);
+        checkHintTrigger();
+        return;
+      }
+    }
 
-            // Custom Avatar Upload Listener
-            iconFileInput.addEventListener('change', (e) => {
-                if (e.target.files && e.target.files[0]) {
-                    const file = e.target.files[0];
-                    const reader = new FileReader();
-                    reader.onload = (event) => {
-                        customAronaAvatarUrl = event.target.result;
-                        try {
-                            localStorage.setItem('ba_arona_avatar_url', customAronaAvatarUrl);
-                        } catch(err) { console.warn("Storage full", err); }
-                        updateAvatarUI();
-                        appendAiChatMessage("アロナのアイコン画像を変更しました！先生、いかがでしょうか？");
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
+    // 有効な質問としてカウント増加
+    questionCount++;
 
-            // Modals & Buttons
-            restartBtn.addEventListener('click', () => initGame());
-            
-            setTargetBtn.addEventListener('click', () => {
-                customStudentInput.value = '';
-                targetModal.classList.remove('hidden');
-            });
+    // 4. 三大校に関する質問
+    if (text.includes('三大校')) {
+      if (currentTarget.big3) {
+        addAronaMessage('はい！三大校（ミレニアム・トリニティ・ゲヘナ）のいずれかの生徒さんですよ！');
+      } else {
+        addAronaMessage('いいえ、三大校所属の生徒さんではありません！');
+      }
+      checkHintTrigger();
+      return;
+    }
 
-            closeModalBtn.addEventListener('click', () => targetModal.classList.add('hidden'));
-            cancelModalBtn.addEventListener('click', () => targetModal.classList.add('hidden'));
+    // 5. 特定の学園に関する質問（ミレニアム、トリニティ等）
+    if (text.includes('ミレニアム') || text.includes('トリニティ') || text.includes('ゲヘナ') || text.includes('アビドス')) {
+      if (text.includes(currentTarget.school) || currentTarget.school.includes(text.replace(/[？\?ですかり]/g, ''))) {
+        addAronaMessage('はい！その学校の生徒さんで間違いありません！');
+      } else {
+        addAronaMessage('いいえ、その学校の生徒さんではありません！');
+      }
+      checkHintTrigger();
+      return;
+    }
 
-            confirmTargetBtn.addEventListener('click', () => {
-                const name = customStudentInput.value.trim();
-                if (name) {
-                    targetModal.classList.add('hidden');
-                    initGame(name);
-                }
-            });
-        }
+    // 6. 部活に関する質問（ティーパーティー、セミナー等）
+    if (text.includes('ティーパーティー') || text.includes('ティーパーティ') || text.includes('セミナー') || text.includes('ゲーム開発部') || text.includes('対策委員会')) {
+      if (text.includes(currentTarget.club) || currentTarget.club.includes(text.replace(/[？\?ですかり]/g, ''))) {
+        addAronaMessage('はい！その部活（委員会）の生徒さんですよ！');
+      } else {
+        addAronaMessage('いいえ、その部活所属の生徒さんではありません！');
+      }
+      checkHintTrigger();
+      return;
+    }
 
-        async function handleUserQuestion(userText) {
-            if (isGameOver) return;
+    // 7. 髪の色に関する質問
+    if (text.includes('髪') || text.includes('色')) {
+      if (text.includes(currentTarget.hair)) {
+        addAronaMessage(`はい！髪の色は${currentTarget.hair}色系の生徒さんです！`);
+      } else {
+        addAronaMessage('いいえ、その髪の色ではありません！');
+      }
+      checkHintTrigger();
+      return;
+    }
 
-            // Check if user entered the special icon change command
-            if (userText === "アイコン変更") {
-                appendUserChatMessage(userText);
-                appendAiIconChangeMessage();
-                return;
-            }
+    // 8. 銃種に関する質問
+    if (text.includes('銃') || text.includes('武器') || text.includes('AR') || text.includes('アサルトライフル') || text.includes('SMG') || text.includes('ショットガン')) {
+      if (text.includes(currentTarget.gun)) {
+        addAronaMessage(`はい！使用している銃は${currentTarget.gun}です！`);
+      } else {
+        addAronaMessage('いいえ、その種類の銃ではありません！');
+      }
+      checkHintTrigger();
+      return;
+    }
 
-            appendUserChatMessage(userText);
-            questionCount++;
-            questionCountEl.textContent = questionCount;
+    // 9. 一般的なその他の質問
+    addAronaMessage('うーん、はいともいいえとも言えませんが...もう少し絞り込んで質問してみてください！');
+    checkHintTrigger();
+  }
 
-            // Direct Guess Check inside JavaScript Memory
-            const isCorrectGuess = checkGuessMatch(userText, currentStudent.name);
+  // 5問目のヒント判定
+  function checkHintTrigger() {
+    if (questionCount === 5 && !isGameOver) {
+      setTimeout(() => {
+        addAronaMessage(`【アロナのヒント】5回質問されましたね！特別にヒントです。この生徒さんの髪の色は「${currentTarget.hair}」系ですよ！`);
+      }, 500);
+    }
+  }
 
-            if (isCorrectGuess) {
-                isGameOver = true;
-                appendAiVictoryMessage();
-                return;
-            }
+  // 定型チップの入力補助機能
+  function setupPresetChip(chipElement, templateText) {
+    chipElement.addEventListener('click', () => {
+      userInput.value = templateText;
+      userInput.focus();
+      
+      const startPos = templateText.indexOf('［');
+      const endPos = templateText.indexOf('］');
+      if (startPos !== -1 && endPos !== -1) {
+        userInput.setSelectionRange(startPos, endPos + 1);
+      }
+    });
+  }
 
-            // Show Thinking Indicator
-            const thinkingId = appendAiThinkingMessage();
+  setupPresetChip(chip1, '三大校ですか？');
+  setupPresetChip(chip2, '髪の色は［］ですか？');
+  setupPresetChip(chip3, '使用する銃の種類は［］ですか？');
 
-            // Query Gemini API or Fallback
-            try {
-                const responseText = await callGeminiEvaluation(userText, currentStudent);
-                removeChatMessage(thinkingId);
-                appendAiChatMessage(responseText);
+  // イベントリスナー
+  btnSend.addEventListener('click', handleInput);
+  userInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') handleInput();
+  });
 
-                // Auto Trigger Hint on 5th Question
-                if (questionCount === 5 && !hintGiven) {
-                    hintGiven = true;
-                    setTimeout(() => triggerFifthQuestionHint(), 600);
-                }
+  btnReset.addEventListener('click', () => initGame());
 
-            } catch (err) {
-                console.error("Gemini API Error:", err);
-                removeChatMessage(thinkingId);
-                // Fallback answer
-                appendAiChatMessage("はい！...あ、すみません、もう一回質問してもらえますか？");
-            }
-        }
+  // ターゲット設定モーダル
+  btnSetTarget.addEventListener('click', () => {
+    targetInput.value = '';
+    modalOverlay.classList.add('active');
+  });
 
-        // Check if guess matches character name
-        function checkGuessMatch(text, targetName) {
-            const cleanText = text.replace(/[\s\t\n？?！!ちゃんさん様]/g, '').toLowerCase();
-            const cleanTarget = targetName.replace(/[\s\t\n]/g, '').toLowerCase();
-            return cleanText.includes(cleanTarget);
-        }
+  btnModalCancel.addEventListener('click', () => {
+    modalOverlay.classList.remove('active');
+  });
 
-        async function callGeminiEvaluation(questionText, target) {
-            const apiKey = ""; // Canvas handles API key runtime insertion
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+  btnModalSave.addEventListener('click', () => {
+    const val = targetInput.value.trim();
+    if (val) {
+      const found = STUDENT_DATABASE.find(s => s.name === val || s.full.includes(val));
+      if (found) {
+        initGame(found);
+      } else {
+        // カスタム設定
+        initGame({
+          name: val,
+          full: val,
+          school: "指定学園",
+          club: "指定部活",
+          hair: "特定の色",
+          gun: "特定の銃種",
+          big3: true
+        });
+      }
+    }
+    modalOverlay.classList.remove('active');
+  });
 
-            const systemInstruction = `
-あなたはゲーム『ブルーアーカイブ』のアロナ（AIアシスタント）です。
-先生（ユーザー）が、あなたが心に思い浮かべている生徒（お題）を当てるアキネーター風ゲームを行っています。
-
-現在のお題生徒: 【${target.name}】
-${target.school ? `所属校: ${target.school}` : ''}
-${target.club ? `部活: ${target.club}` : ''}
-${target.hairColor ? `髪色: ${target.hairColor}` : ''}
-
-【厳格な回答ルール】
-1. 質問に対して、お題の生徒の性質に基づき「はい」「いいえ」「わからない」「おしい」のいずれかで判定してください。
-2. 「はい！そうです！」「いいえ、違いますよ！」「うーん、アロナにはわかりません...」のような短い相槌・挨拶のみを添えてOKです。
-3. 【絶対厳禁・ネタバレ防止】質問されていない詳細情報や固有の名称（部活名や学校名など）を自分から喋ることは絶対に禁止です！
-   例: 「部活動に所属していますか？」という質問に対し、「はい！ティーパーティに所属しています！」と答えるのは【大失敗】です。「はい！そうです！」とだけ答えてください。
-4. 先生が生徒の名前を当てにきた場合は「大正解です！」と褒めてください。
-`;
-
-            const payload = {
-                contents: [{ parts: [{ text: `質問: ${questionText}` }] }],
-                systemInstruction: { parts: [{ text: systemInstruction }] }
-            };
-
-            const response = await fetch(apiUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-
-            if (!response.ok) throw new Error("API call failed");
-
-            const result = await response.json();
-            const reply = result.candidates?.[0]?.content?.parts?.[0]?.text;
-            return reply || "はい！そうです！";
-        }
-
-        // Auto Hint Trigger at 5th Question
-        function triggerFifthQuestionHint() {
-            let hintMsg = "";
-            if (currentStudent.school) {
-                hintMsg = `【ヒント (質問5回目)】この生徒さんは「${currentStudent.school}」に関係がある生徒さんですよ！`;
-            } else if (currentStudent.hairColor) {
-                hintMsg = `【ヒント (質問5回目)】この生徒さんの髪色は「${currentStudent.hairColor}」の特徴を持っています！`;
-            } else {
-                hintMsg = `【ヒント (質問5回目)】キヴォトスでもとっても個性的な魅力を持っている生徒さんです！`;
-            }
-
-            appendAiChatMessage(hintMsg);
-
-            // Update Left Hint Panel
-            const noHint = document.getElementById('noHintText');
-            if (noHint) noHint.remove();
-
-            const hintCard = document.createElement('div');
-            hintCard.className = "p-2.5 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-900 font-bold shadow-sm";
-            hintCard.innerHTML = `<i class="fa-solid fa-star text-amber-500 mr-1.5"></i>5回目ヒント: ${currentStudent.school || currentStudent.hairColor || 'キヴォトスの生徒'}`;
-            hintContainer.appendChild(hintCard);
-        }
-
-        function appendUserChatMessage(text) {
-            const div = document.createElement('div');
-            div.className = "flex justify-end mb-3";
-            div.innerHTML = `
-                <div class="chat-bubble-user px-4 py-2.5 text-xs sm:text-sm max-w-[80%] shadow-sm leading-relaxed font-medium">
-                    ${escapeHtml(text)}
-                </div>
-            `;
-            chatContainer.appendChild(div);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-        }
-
-        function appendAiChatMessage(text) {
-            const div = document.createElement('div');
-            div.className = "flex justify-start items-start gap-2.5 mb-3";
-            div.innerHTML = `
-                <div class="arona-chat-avatar w-8 h-8 rounded-xl bg-gradient-to-tr from-sky-300 to-indigo-200 p-0.5 shadow shrink-0 overflow-hidden border border-white">
-                    ${renderAronaAvatarHtml()}
-                </div>
-                <div class="chat-bubble-ai px-4 py-2.5 text-xs sm:text-sm max-w-[80%] shadow-sm leading-relaxed font-medium">
-                    ${escapeHtml(text)}
-                </div>
-            `;
-            chatContainer.appendChild(div);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-        }
-
-        function appendAiThinkingMessage() {
-            const id = 'thinking_' + Date.now();
-            const div = document.createElement('div');
-            div.id = id;
-            div.className = "flex justify-start items-start gap-2.5 mb-3";
-            div.innerHTML = `
-                <div class="arona-chat-avatar w-8 h-8 rounded-xl bg-gradient-to-tr from-sky-300 to-indigo-200 p-0.5 shadow shrink-0 overflow-hidden border border-white">
-                    ${renderAronaAvatarHtml()}
-                </div>
-                <div class="chat-bubble-ai px-4 py-3 text-xs shadow-sm flex items-center gap-1.5 text-sky-600 font-bold">
-                    <i class="fa-solid fa-spinner fa-spin"></i>
-                    <span>考え中...</span>
-                </div>
-            `;
-            chatContainer.appendChild(div);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-            return id;
-        }
-
-        function appendAiIconChangeMessage() {
-            const div = document.createElement('div');
-            div.className = "flex justify-start items-start gap-2.5 mb-3";
-            const btnId = 'iconSelectBtn_' + Date.now();
-            div.innerHTML = `
-                <div class="arona-chat-avatar w-8 h-8 rounded-xl bg-gradient-to-tr from-sky-300 to-indigo-200 p-0.5 shadow shrink-0 overflow-hidden border border-white">
-                    ${renderAronaAvatarHtml()}
-                </div>
-                <div class="chat-bubble-ai px-4 py-3 text-xs sm:text-sm max-w-[80%] shadow-sm leading-relaxed">
-                    <p class="mb-2">アロナのアイコン画像を変更しますか？以下のボタンからお好きな画像ファイルを選択してください！</p>
-                    <button id="${btnId}" class="px-3.5 py-2 text-xs rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold transition inline-flex items-center gap-1.5 shadow-md">
-                        <i class="fa-solid fa-camera"></i>
-                        <span>画像ファイルを選択する</span>
-                    </button>
-                </div>
-            `;
-            chatContainer.appendChild(div);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-
-            document.getElementById(btnId).addEventListener('click', () => {
-                iconFileInput.click();
-            });
-        }
-
-        function appendAiVictoryMessage() {
-            const div = document.createElement('div');
-            div.className = "p-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-2xl shadow-xl my-4 text-center border-2 border-white/40";
-            div.innerHTML = `
-                <div class="text-2xl mb-1"><i class="fa-solid fa-trophy text-amber-300 animate-bounce"></i></div>
-                <h3 class="text-base font-extrabold mb-1">大正解です、先生！</h3>
-                <p class="text-xs mb-3 opacity-90">正解は【${escapeHtml(currentStudent.fullName || currentStudent.name)}】ちゃんでした！</p>
-                <div class="flex justify-center">
-                    <button id="inChatRestartBtn" class="px-4 py-2 bg-amber-400 hover:bg-amber-500 text-slate-900 font-black text-xs rounded-xl shadow transition flex items-center gap-1.5 active:scale-95">
-                        <i class="fa-solid fa-rotate-right"></i>
-                        <span>新しいゲームを始める</span>
-                    </button>
-                </div>
-            `;
-            chatContainer.appendChild(div);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-
-            document.getElementById('inChatRestartBtn').addEventListener('click', () => initGame());
-        }
-
-        function removeChatMessage(id) {
-            const el = document.getElementById(id);
-            if (el) el.remove();
-        }
-
-        function escapeHtml(str) {
-            if (!str) return '';
-            return str.replace(/[&<>"']/g, (m) => {
-                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
-            });
-        }
-    </script>
+  // 初回起動
+  initGame();
+</script>
 </body>
 </html>
