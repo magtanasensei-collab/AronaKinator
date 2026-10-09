@@ -396,7 +396,7 @@
   <div class="modal">
     <h3>ターゲット生徒の設定</h3>
     <p>アロナに思い浮かべてもらう生徒の下の名前をカタカナで入力してください。</p>
-    <input type="text" id="targetInput" placeholder="例: ミカ、ユウカ、アリス">
+    <input type="text" id="targetInput" placeholder="例: ミカ、ユウカ、ラブ">
     <div class="modal-buttons">
       <button class="btn-modal cancel" id="btnModalCancel">キャンセル</button>
       <button class="btn-modal save" id="btnModalSave">設定する</button>
@@ -425,18 +425,19 @@
     { name: "学園無所属", alias: ["無所属", "七囚人", "雛鳥組", "エンジェル24", "シッテムの箱", "不明"], isBig3: false }
   ];
 
-  // 2. 多角的な属性を備えた生徒データベース
+  // 2. 多角的な属性を備えた生徒データベース（部活無所属属性：hasClub）
   const STUDENT_DATABASE = [
-    { name: "ミカ", full: "聖園ミカ", school: "トリニティ総合学院", club: "ティーパーティー", hair: ["ピンク", "桃"], eye: ["黄", "金"], gun: "AR", tags: ["金髪", "お姫様", "羽", "高身長", "ロール髪", "魔女", "力持ち"] },
-    { name: "ユウカ", full: "早瀬ユウカ", school: "ミレニアムサイエンススクール", club: "セミナー", hair: ["黒", "紫", "ダーク"], eye: ["青", "水"], gun: "SMG", tags: ["計算", "会計", "太もも", "ツインテール", "真面目", "正妻"] },
-    { name: "アリス", full: "天童アリス", school: "ミレニアムサイエンススクール", club: "ゲーム開発部", hair: ["黒", "ロング"], eye: ["青"], gun: "特殊", tags: ["ロボット", "勇者", "ゲーマー", "低身長", "小柄", "語尾"] },
-    { name: "ヒフミ", full: "阿慈谷ヒフミ", school: "トリニティ総合学院", club: "補習授業部", hair: ["金", "黄"], eye: ["茶"], gun: "AR", tags: ["ペロロ", "普通", "補習", "覆面", "ファウスト"] },
-    { name: "アル", full: "陸八魔アル", school: "ゲヘナ学園", club: "便利屋68", hair: ["赤", "ワイン"], eye: ["赤"], gun: "SR", tags: ["社長", "ポンコツ", "角", "悪党", "コート", "ツノ"] },
-    { name: "シロコ", full: "砂狼シロコ", school: "アビドス高等学校", club: "対策委員会", hair: ["白", "銀"], eye: ["青"], gun: "AR", tags: ["ケモミミ", "獣耳", "ジョギング", "銀行襲撃", "マフラー", "オッドアイ"] },
-    { name: "ホシノ", full: "小鳥遊ホシノ", school: "アビドス高等学校", club: "対策委員会", hair: ["ピンク", "桃"], eye: ["オッドアイ", "黄", "青"], gun: "SG", tags: ["おじさん", "楯", "盾", "副会長", "小柄", "睡眠", "寝る"] }
+    { name: "ミカ", full: "聖園ミカ", school: "トリニティ総合学院", club: "ティーパーティー", hasClub: true, hair: ["ピンク", "桃"], eye: ["黄", "金"], gun: "AR", tags: ["お姫様", "羽", "高身長", "ロール髪", "魔女", "力持ち"] },
+    { name: "ユウカ", full: "早瀬ユウカ", school: "ミレニアムサイエンススクール", club: "セミナー", hasClub: true, hair: ["黒", "紫", "ダーク"], eye: ["青", "水"], gun: "SMG", tags: ["計算", "会計", "太もも", "ツインテール", "真面目", "正妻"] },
+    { name: "アリス", full: "天童アリス", school: "ミレニアムサイエンススクール", club: "ゲーム開発部", hasClub: true, hair: ["黒", "ロング"], eye: ["青"], gun: "特殊", tags: ["ロボット", "勇者", "ゲーマー", "低身長", "小柄", "語尾"] },
+    { name: "ヒフミ", full: "阿慈谷ヒフミ", school: "トリニティ総合学院", club: "補習授業部", hasClub: true, hair: ["金", "黄"], eye: ["茶"], gun: "AR", tags: ["ペロロ", "普通", "補習", "覆面", "ファウスト"] },
+    { name: "アル", full: "陸八魔アル", school: "ゲヘナ学園", club: "便利屋68", hasClub: true, hair: ["赤", "ワイン"], eye: ["赤"], gun: "SR", tags: ["社長", "ポンコツ", "角", "悪党", "コート", "ツノ"] },
+    { name: "シロコ", full: "砂狼シロコ", school: "アビドス高等学校", club: "対策委員会", hasClub: true, hair: ["白", "銀"], eye: ["青"], gun: "AR", tags: ["ケモミミ", "獣耳", "ジョギング", "銀行襲撃", "マフラー", "オッドアイ"] },
+    { name: "ホシノ", full: "小鳥遊ホシノ", school: "アビドス高等学校", club: "対策委員会", hasClub: true, hair: ["ピンク", "桃"], eye: ["オッドアイ", "黄", "青"], gun: "SG", tags: ["おじさん", "楯", "盾", "副会長", "小柄", "睡眠", "寝る"] },
+    { name: "ラブ", full: "ラブ", school: "トリニティ総合学院", club: "なし", hasClub: false, hair: ["赤", "金"], eye: ["赤"], gun: "SR", tags: ["無所属", "スケバン", "ヘルメット団", "単体"] }
   ];
 
-  // アロナアバター（URLエンコード形式で画像表示エラーを完全回避）
+  // アロナアバターSVG
   const ARONA_AVATAR_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="%2300a0e9"/><circle cx="50" cy="38" r="22" fill="%23fff"/><path d="M 30 80 Q 50 60 70 80" stroke="%23fff" stroke-width="12" fill="none" stroke-linecap="round"/><circle cx="43" cy="36" r="3" fill="%2300a0e9"/><circle cx="57" cy="36" r="3" fill="%2300a0e9"/></svg>`;
   const ARONA_AVATAR_SRC = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(ARONA_AVATAR_SVG);
 
@@ -476,7 +477,7 @@
     addAronaMessage('先生！アロナが心の中で思い浮かべている生徒さんを当ててみてください！');
   }
 
-  // アロナのメッセージ描画（画像タグとHTML構文の不具合を解消）
+  // アロナメッセージ描画
   function addAronaMessage(text, showNewGameBtn = false) {
     const msgDiv = document.createElement('div');
     msgDiv.className = 'message arona';
@@ -536,7 +537,7 @@
     return true;
   }
 
-  // 質問・回答メイン処理（自然言語キーワード対応）
+  // 質問・回答メイン処理
   function handleInput() {
     const text = userInput.value.trim();
     if (!text || isGameOver) return;
@@ -573,7 +574,7 @@
     }
 
     // 2. 生徒名の直接回答
-    if (isPureKatakanaName(text) || (text.includes('ですか') && !text.includes('校') && !text.includes('色') && !text.includes('銃') && !text.includes('部') && !text.includes('髪'))) {
+    if (isPureKatakanaName(text) || (text.includes('ですか') && !text.includes('校') && !text.includes('色') && !text.includes('銃') && !text.includes('部') && !text.includes('髪') && !text.includes('所属'))) {
       const guessedName = text.replace(/[？\?ですかりか]/g, '').trim();
       
       if (guessedName.length >= 1 && (currentTarget.name.includes(guessedName) || guessedName.includes(currentTarget.name))) {
@@ -600,10 +601,22 @@
       return;
     }
 
-    // 4. 部活・委員会
+    // 4. 部活に所属しているかどうかの一般的質問への個別判定
+    if (text.includes('部活に所属') || text.includes('部活に入って') || text.includes('委員会に所属')) {
+      questionCount++;
+      if (currentTarget.hasClub) {
+        addAronaMessage('はい！部活（委員会）に所属している生徒さんですよ！');
+      } else {
+        addAronaMessage('いいえ、部活（委員会）には所属していません！');
+      }
+      checkHintTrigger();
+      return;
+    }
+
+    // 5. 特定の部活・委員会指定質問
     if (text.includes('部') || text.includes('委員会') || text.includes('セミナー') || text.includes('便利屋') || text.includes('ティーパーティー')) {
       questionCount++;
-      if (text.includes(currentTarget.club) || currentTarget.club.includes(text.replace(/[？\?ですかり]/g, ''))) {
+      if (currentTarget.hasClub && (text.includes(currentTarget.club) || currentTarget.club.includes(text.replace(/[？\?ですかり]/g, '')))) {
         addAronaMessage(`はい！${currentTarget.club}所属の生徒さんです！`);
       } else {
         addAronaMessage('いいえ、その部活（委員会）の生徒さんではありません！');
@@ -612,7 +625,7 @@
       return;
     }
 
-    // 5. 髪の色
+    // 6. 髪の色
     if (text.includes('髪') || text.includes('色')) {
       questionCount++;
       const matchedHair = currentTarget.hair.some(h => text.includes(h));
@@ -625,7 +638,7 @@
       return;
     }
 
-    // 6. 銃の種類
+    // 7. 銃の種類
     if (text.includes('銃') || text.includes('武器') || text.includes('AR') || text.includes('アサルトライフル') || text.includes('SMG') || text.includes('サブマシンガン') || text.includes('SR') || text.includes('スナイパー') || text.includes('ショットガン') || text.includes('レールガン')) {
       questionCount++;
       if (text.includes(currentTarget.gun)) {
@@ -637,7 +650,7 @@
       return;
     }
 
-    // 7. タグ・属性キーワード（身長、眼鏡、ヘイロー、性格など柔軟な質問）
+    // 8. 属性・タグ検索（その他自然言語質問）
     questionCount++;
     let matchedTag = false;
     for (const tag of currentTarget.tags) {
@@ -650,8 +663,7 @@
     if (matchedTag) {
       addAronaMessage('はい！まさにその通りです、先生！');
     } else {
-      // 一定のキーワードが含まれている場合は否定で答える
-      if (text.includes('高') || text.includes('低') || text.includes('長') || text.includes('眼鏡') || text.includes('メガネ') || text.includes('ツノ') || text.includes('角') || text.includes('耳') || text.includes('お姉ちゃん') || text.includes('妹')) {
+      if (text.includes('高') || text.includes('低') || text.includes('長') || text.includes('眼鏡') || text.includes('メガネ') || text.includes('ツノ') || text.includes('角') || text.includes('耳')) {
         addAronaMessage('いいえ、違います！');
       } else {
         addAronaMessage('うーん、はいともいいえとも言い切れませんが、近い雰囲気かもしれません...！');
@@ -660,11 +672,12 @@
     checkHintTrigger();
   }
 
-  // 5問目のヒント
+  // 10問目のヒント判定（頭文字1文字を公開）
   function checkHintTrigger() {
-    if (questionCount === 5 && !isGameOver) {
+    if (questionCount === 10 && !isGameOver) {
       setTimeout(() => {
-        addAronaMessage(`【アロナのヒント】5回質問されましたね！特別にヒントです。この生徒さんの髪の色は「${currentTarget.hair[0]}」系ですよ！`);
+        const firstChar = currentTarget.name.charAt(0);
+        addAronaMessage(`【アロナのヒント】10回質問されましたね！特別にヒントです。この生徒さんの名前の頭文字は「${firstChar}」ですよ！`);
       }, 500);
     }
   }
@@ -716,7 +729,8 @@
           name: val,
           full: val,
           school: "指定学園",
-          club: "指定部活",
+          club: "なし",
+          hasClub: false,
           hair: ["特定"],
           gun: "特定",
           tags: ["カスタム"]
