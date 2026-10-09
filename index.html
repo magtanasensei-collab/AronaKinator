@@ -99,9 +99,6 @@
       font-weight: bold;
       cursor: pointer;
       transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      gap: 4px;
     }
 
     .btn-header:hover {
@@ -142,10 +139,11 @@
     }
 
     .msg-avatar {
-      width: 36px;
-      height: 36px;
+      width: 38px;
+      height: 38px;
       border-radius: 50%;
       flex-shrink: 0;
+      object-fit: cover;
     }
 
     .msg-bubble {
@@ -407,19 +405,40 @@
 </div>
 
 <script>
-  // 1. 生徒データベース（学園、部活、髪色、銃種、三大校判定を網羅）
-  const STUDENT_DATABASE = [
-    { name: "ミカ", full: "聖園ミカ", school: "トリニティ総合学院", club: "ティーパーティー", hair: "ピンク", gun: "アサルトライフル", big3: true },
-    { name: "ユウカ", full: "早瀬ユウカ", school: "ミレニアムサイエンススクール", club: "セミナー", hair: "黒", gun: "サブマシンガン", big3: true },
-    { name: "アリス", full: "天童アリス", school: "ミレニアムサイエンススクール", club: "ゲーム開発部", hair: "黒", gun: "レールガン", big3: true },
-    { name: "ヒフミ", full: "阿慈谷ヒフミ", school: "トリニティ総合学院", club: "補習授業部", hair: "金", gun: "アサルトライフル", big3: true },
-    { name: "アル", full: "陸八魔アル", school: "ゲヘナ学園", club: "便利屋68", hair: "赤", gun: "スナイパーライフル", big3: true },
-    { name: "シロコ", full: "砂狼シロコ", school: "アビドス高等学校", club: "対策委員会", hair: "白", gun: "アサルトライフル", big3: false },
-    { name: "ホシノ", full: "小鳥遊ホシノ", school: "アビドス高等学校", club: "対策委員会", hair: "ピンク", gun: "ショットガン", big3: false }
+  // 1. 学園一覧データベース (正式名称、通称、三大校フラグ)
+  const SCHOOL_DATABASE = [
+    { name: "ミレニアムサイエンススクール", alias: ["ミレニアム"], isBig3: true },
+    { name: "ゲヘナ学園", alias: ["ゲヘナ"], isBig3: true },
+    { name: "トリニティ総合学院", alias: ["トリニティ"], isBig3: true },
+    { name: "アビドス高等学校", alias: ["アビドス"], isBig3: false },
+    { name: "アリウス分校", alias: ["アリウス"], isBig3: false },
+    { name: "ヴァルキューレ警察学園", alias: ["ヴァルキューレ"], isBig3: false },
+    { name: "オデュッセイア海洋高等学校", alias: ["オデュッセイア"], isBig3: false },
+    { name: "クロノススクール", alias: ["クロノス"], isBig3: false },
+    { name: "山海経高級中学校", alias: ["山海経", "センガイキョウ"], isBig3: false },
+    { name: "ハイランダー鉄道学園", alias: ["ハイランダー"], isBig3: false },
+    { name: "百鬼夜行連合学院", alias: ["百鬼夜行"], isBig3: false },
+    { name: "レッドウィンター連邦学園", alias: ["レッドウィンター", "赤冬"], isBig3: false },
+    { name: "連邦生徒会", alias: [], isBig3: false },
+    { name: "ワイルドハント芸術学院", alias: ["ワイルドハント"], isBig3: false },
+    { name: "SRT特殊学園", alias: ["SRT"], isBig3: false },
+    { name: "学園無所属", alias: ["無所属", "七囚人", "雛鳥組", "エンジェル24", "シッテムの箱", "不明"], isBig3: false }
   ];
 
-  // アイコンSVG (アロナ)
-  const ARONA_AVATAR = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="%2300a0e9"/><circle cx="50" cy="38" r="22" fill="%23fff"/><path d="M 30 80 Q 50 60 70 80" stroke="%23fff" stroke-width="12" fill="none" stroke-linecap="round"/><circle cx="43" cy="36" r="3" fill="%2300a0e9"/><circle cx="57" cy="36" r="3" fill="%2300a0e9"/></svg>`;
+  // 2. 多角的な属性を備えた生徒データベース
+  const STUDENT_DATABASE = [
+    { name: "ミカ", full: "聖園ミカ", school: "トリニティ総合学院", club: "ティーパーティー", hair: ["ピンク", "桃"], eye: ["黄", "金"], gun: "AR", tags: ["金髪", "お姫様", "羽", "高身長", "ロール髪", "魔女", "力持ち"] },
+    { name: "ユウカ", full: "早瀬ユウカ", school: "ミレニアムサイエンススクール", club: "セミナー", hair: ["黒", "紫", "ダーク"], eye: ["青", "水"], gun: "SMG", tags: ["計算", "会計", "太もも", "ツインテール", "真面目", "正妻"] },
+    { name: "アリス", full: "天童アリス", school: "ミレニアムサイエンススクール", club: "ゲーム開発部", hair: ["黒", "ロング"], eye: ["青"], gun: "特殊", tags: ["ロボット", "勇者", "ゲーマー", "低身長", "小柄", "語尾"] },
+    { name: "ヒフミ", full: "阿慈谷ヒフミ", school: "トリニティ総合学院", club: "補習授業部", hair: ["金", "黄"], eye: ["茶"], gun: "AR", tags: ["ペロロ", "普通", "補習", "覆面", "ファウスト"] },
+    { name: "アル", full: "陸八魔アル", school: "ゲヘナ学園", club: "便利屋68", hair: ["赤", "ワイン"], eye: ["赤"], gun: "SR", tags: ["社長", "ポンコツ", "角", "悪党", "コート", "ツノ"] },
+    { name: "シロコ", full: "砂狼シロコ", school: "アビドス高等学校", club: "対策委員会", hair: ["白", "銀"], eye: ["青"], gun: "AR", tags: ["ケモミミ", "獣耳", "ジョギング", "銀行襲撃", "マフラー", "オッドアイ"] },
+    { name: "ホシノ", full: "小鳥遊ホシノ", school: "アビドス高等学校", club: "対策委員会", hair: ["ピンク", "桃"], eye: ["オッドアイ", "黄", "青"], gun: "SG", tags: ["おじさん", "楯", "盾", "副会長", "小柄", "睡眠", "寝る"] }
+  ];
+
+  // アロナアバター（URLエンコード形式で画像表示エラーを完全回避）
+  const ARONA_AVATAR_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="%2300a0e9"/><circle cx="50" cy="38" r="22" fill="%23fff"/><path d="M 30 80 Q 50 60 70 80" stroke="%23fff" stroke-width="12" fill="none" stroke-linecap="round"/><circle cx="43" cy="36" r="3" fill="%2300a0e9"/><circle cx="57" cy="36" r="3" fill="%2300a0e9"/></svg>`;
+  const ARONA_AVATAR_SRC = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(ARONA_AVATAR_SVG);
 
   // ゲーム状態
   let currentTarget = null;
@@ -457,21 +476,31 @@
     addAronaMessage('先生！アロナが心の中で思い浮かべている生徒さんを当ててみてください！');
   }
 
-  // メッセージ追加
+  // アロナのメッセージ描画（画像タグとHTML構文の不具合を解消）
   function addAronaMessage(text, showNewGameBtn = false) {
     const msgDiv = document.createElement('div');
     msgDiv.className = 'message arona';
-    
-    let contentHtml = `<div class="msg-bubble">${text}`;
-    if (showNewGameBtn) {
-      contentHtml += `<br><button class="chat-reset-btn" onclick="initGame()">ニューゲーム（もう一度遊ぶ）</button>`;
-    }
-    contentHtml += `</div>`;
 
-    msgDiv.innerHTML = `
-      <img src="${ARONA_AVATAR}" class="msg-avatar" alt="Arona">
-      ${contentHtml}
-    `;
+    const avatarImg = document.createElement('img');
+    avatarImg.src = ARONA_AVATAR_SRC;
+    avatarImg.className = 'msg-avatar';
+    avatarImg.alt = 'Arona';
+
+    const bubble = document.createElement('div');
+    bubble.className = 'msg-bubble';
+    bubble.innerHTML = text;
+
+    if (showNewGameBtn) {
+      const btn = document.createElement('button');
+      btn.className = 'chat-reset-btn';
+      btn.textContent = 'ニューゲーム（もう一度遊ぶ）';
+      btn.onclick = () => initGame();
+      bubble.appendChild(document.createElement('br'));
+      bubble.appendChild(btn);
+    }
+
+    msgDiv.appendChild(avatarImg);
+    msgDiv.appendChild(bubble);
     chatArea.appendChild(msgDiv);
     chatArea.scrollTop = chatArea.scrollHeight;
   }
@@ -484,13 +513,30 @@
     chatArea.scrollTop = chatArea.scrollHeight;
   }
 
-  // カタカナ検出
-  function isKatakanaName(text) {
+  // 学園判定
+  function findSchoolMatch(text) {
     const clean = text.replace(/[？\?ですかりか]/g, '').trim();
-    return /^[\u30A0-\u30FF]+$/.test(clean) && clean.length >= 1 && clean.length <= 6;
+    for (const sch of SCHOOL_DATABASE) {
+      if (sch.name.includes(clean) || sch.alias.some(a => clean.includes(a) || a.includes(clean))) {
+        return sch;
+      }
+    }
+    return null;
   }
 
-  // 質問・回答の処理メイン
+  // カタカナ生徒名推定
+  function isPureKatakanaName(text) {
+    const clean = text.replace(/[？\?ですかりか]/g, '').trim();
+    if (!/^[\u30A0-\u30FF]+$/.test(clean) || clean.length < 1 || clean.length > 6) {
+      return false;
+    }
+    if (findSchoolMatch(clean)) {
+      return false;
+    }
+    return true;
+  }
+
+  // 質問・回答メイン処理（自然言語キーワード対応）
   function handleInput() {
     const text = userInput.value.trim();
     if (!text || isGameOver) return;
@@ -498,52 +544,26 @@
     userInput.value = '';
     addUserMessage(text);
 
-    // 1. デバッグコマンド「コマンド2」
+    // デバッグ「コマンド2」
     if (text === 'コマンド2') {
       addAronaMessage(`【デバッグ】アロナが思い浮かべている生徒さんは「${currentTarget.full}」（${currentTarget.school} / ${currentTarget.club}所属）です！`, true);
       isGameOver = true;
       return;
     }
 
-    // 2. アイコン変更や無意味な入力の防衛ハンドリング
+    // 無効メッセージ回避
     if (text.includes('アイコン変更') || text.match(/^(あ+|い+|う+|か+|さ+)$/)) {
       addAronaMessage('先生、もう一度ちゃんとした質問をお願いします！');
-      return; // カウントを増やすことなく再促し
-    }
-
-    // 3. 生徒名の直接推測（カタカナ名前判定）
-    if (isKatakanaName(text) || text.includes('ですか')) {
-      const guessedName = text.replace(/[？\?ですかりか]/g, '').trim();
-      
-      if (guessedName.length >= 1 && (currentTarget.name.includes(guessedName) || guessedName.includes(currentTarget.name))) {
-        addAronaMessage(`大正解です、先生！正解は ${currentTarget.full} さんでした！さすが先生です！`, true);
-        isGameOver = true;
-        return;
-      } else if (isKatakanaName(text)) {
-        questionCount++;
-        addAronaMessage(`いいえ、${guessedName}さんではありません！`);
-        checkHintTrigger();
-        return;
-      }
-    }
-
-    // 有効な質問としてカウント増加
-    questionCount++;
-
-    // 4. 三大校に関する質問
-    if (text.includes('三大校')) {
-      if (currentTarget.big3) {
-        addAronaMessage('はい！三大校（ミレニアム・トリニティ・ゲヘナ）のいずれかの生徒さんですよ！');
-      } else {
-        addAronaMessage('いいえ、三大校所属の生徒さんではありません！');
-      }
-      checkHintTrigger();
       return;
     }
 
-    // 5. 特定の学園に関する質問（ミレニアム、トリニティ等）
-    if (text.includes('ミレニアム') || text.includes('トリニティ') || text.includes('ゲヘナ') || text.includes('アビドス')) {
-      if (text.includes(currentTarget.school) || currentTarget.school.includes(text.replace(/[？\?ですかり]/g, ''))) {
+    // 1. 学園名の質問
+    const matchedSchool = findSchoolMatch(text);
+    if (matchedSchool) {
+      questionCount++;
+      const isCorrectSchool = currentTarget.school.includes(matchedSchool.name) || 
+                              matchedSchool.alias.some(a => currentTarget.school.includes(a));
+      if (isCorrectSchool) {
         addAronaMessage('はい！その学校の生徒さんで間違いありません！');
       } else {
         addAronaMessage('いいえ、その学校の生徒さんではありません！');
@@ -552,21 +572,52 @@
       return;
     }
 
-    // 6. 部活に関する質問（ティーパーティー、セミナー等）
-    if (text.includes('ティーパーティー') || text.includes('ティーパーティ') || text.includes('セミナー') || text.includes('ゲーム開発部') || text.includes('対策委員会')) {
-      if (text.includes(currentTarget.club) || currentTarget.club.includes(text.replace(/[？\?ですかり]/g, ''))) {
-        addAronaMessage('はい！その部活（委員会）の生徒さんですよ！');
+    // 2. 生徒名の直接回答
+    if (isPureKatakanaName(text) || (text.includes('ですか') && !text.includes('校') && !text.includes('色') && !text.includes('銃') && !text.includes('部') && !text.includes('髪'))) {
+      const guessedName = text.replace(/[？\?ですかりか]/g, '').trim();
+      
+      if (guessedName.length >= 1 && (currentTarget.name.includes(guessedName) || guessedName.includes(currentTarget.name))) {
+        addAronaMessage(`大正解です、先生！正解は ${currentTarget.full} さんでした！さすが先生です！`, true);
+        isGameOver = true;
+        return;
+      } else if (isPureKatakanaName(text)) {
+        questionCount++;
+        addAronaMessage(`いいえ、${guessedName}さんではありません！`);
+        checkHintTrigger();
+        return;
+      }
+    }
+
+    // 3. 三大校の質問
+    if (text.includes('三大校')) {
+      questionCount++;
+      if (SCHOOL_DATABASE.find(s => currentTarget.school.includes(s.name))?.isBig3) {
+        addAronaMessage('はい！三大校（ミレニアム・トリニティ・ゲヘナ）のいずれかの生徒さんですよ！');
       } else {
-        addAronaMessage('いいえ、その部活所属の生徒さんではありません！');
+        addAronaMessage('いいえ、三大校所属の生徒さんではありません！');
       }
       checkHintTrigger();
       return;
     }
 
-    // 7. 髪の色に関する質問
+    // 4. 部活・委員会
+    if (text.includes('部') || text.includes('委員会') || text.includes('セミナー') || text.includes('便利屋') || text.includes('ティーパーティー')) {
+      questionCount++;
+      if (text.includes(currentTarget.club) || currentTarget.club.includes(text.replace(/[？\?ですかり]/g, ''))) {
+        addAronaMessage(`はい！${currentTarget.club}所属の生徒さんです！`);
+      } else {
+        addAronaMessage('いいえ、その部活（委員会）の生徒さんではありません！');
+      }
+      checkHintTrigger();
+      return;
+    }
+
+    // 5. 髪の色
     if (text.includes('髪') || text.includes('色')) {
-      if (text.includes(currentTarget.hair)) {
-        addAronaMessage(`はい！髪の色は${currentTarget.hair}色系の生徒さんです！`);
+      questionCount++;
+      const matchedHair = currentTarget.hair.some(h => text.includes(h));
+      if (matchedHair) {
+        addAronaMessage(`はい！髪の色は${currentTarget.hair[0]}色系で間違いありません！`);
       } else {
         addAronaMessage('いいえ、その髪の色ではありません！');
       }
@@ -574,32 +625,51 @@
       return;
     }
 
-    // 8. 銃種に関する質問
-    if (text.includes('銃') || text.includes('武器') || text.includes('AR') || text.includes('アサルトライフル') || text.includes('SMG') || text.includes('ショットガン')) {
+    // 6. 銃の種類
+    if (text.includes('銃') || text.includes('武器') || text.includes('AR') || text.includes('アサルトライフル') || text.includes('SMG') || text.includes('サブマシンガン') || text.includes('SR') || text.includes('スナイパー') || text.includes('ショットガン') || text.includes('レールガン')) {
+      questionCount++;
       if (text.includes(currentTarget.gun)) {
-        addAronaMessage(`はい！使用している銃は${currentTarget.gun}です！`);
+        addAronaMessage(`はい！使用している武器（銃）は${currentTarget.gun}です！`);
       } else {
-        addAronaMessage('いいえ、その種類の銃ではありません！');
+        addAronaMessage('いいえ、その種類の武器ではありません！');
       }
       checkHintTrigger();
       return;
     }
 
-    // 9. 一般的なその他の質問
-    addAronaMessage('うーん、はいともいいえとも言えませんが...もう少し絞り込んで質問してみてください！');
+    // 7. タグ・属性キーワード（身長、眼鏡、ヘイロー、性格など柔軟な質問）
+    questionCount++;
+    let matchedTag = false;
+    for (const tag of currentTarget.tags) {
+      if (text.includes(tag)) {
+        matchedTag = true;
+        break;
+      }
+    }
+
+    if (matchedTag) {
+      addAronaMessage('はい！まさにその通りです、先生！');
+    } else {
+      // 一定のキーワードが含まれている場合は否定で答える
+      if (text.includes('高') || text.includes('低') || text.includes('長') || text.includes('眼鏡') || text.includes('メガネ') || text.includes('ツノ') || text.includes('角') || text.includes('耳') || text.includes('お姉ちゃん') || text.includes('妹')) {
+        addAronaMessage('いいえ、違います！');
+      } else {
+        addAronaMessage('うーん、はいともいいえとも言い切れませんが、近い雰囲気かもしれません...！');
+      }
+    }
     checkHintTrigger();
   }
 
-  // 5問目のヒント判定
+  // 5問目のヒント
   function checkHintTrigger() {
     if (questionCount === 5 && !isGameOver) {
       setTimeout(() => {
-        addAronaMessage(`【アロナのヒント】5回質問されましたね！特別にヒントです。この生徒さんの髪の色は「${currentTarget.hair}」系ですよ！`);
+        addAronaMessage(`【アロナのヒント】5回質問されましたね！特別にヒントです。この生徒さんの髪の色は「${currentTarget.hair[0]}」系ですよ！`);
       }, 500);
     }
   }
 
-  // 定型チップの入力補助機能
+  // 定型チップ
   function setupPresetChip(chipElement, templateText) {
     chipElement.addEventListener('click', () => {
       userInput.value = templateText;
@@ -617,7 +687,7 @@
   setupPresetChip(chip2, '髪の色は［］ですか？');
   setupPresetChip(chip3, '使用する銃の種類は［］ですか？');
 
-  // イベントリスナー
+  // イベント
   btnSend.addEventListener('click', handleInput);
   userInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') handleInput();
@@ -625,7 +695,7 @@
 
   btnReset.addEventListener('click', () => initGame());
 
-  // ターゲット設定モーダル
+  // モーダル
   btnSetTarget.addEventListener('click', () => {
     targetInput.value = '';
     modalOverlay.classList.add('active');
@@ -642,22 +712,21 @@
       if (found) {
         initGame(found);
       } else {
-        // カスタム設定
         initGame({
           name: val,
           full: val,
           school: "指定学園",
           club: "指定部活",
-          hair: "特定の色",
-          gun: "特定の銃種",
-          big3: true
+          hair: ["特定"],
+          gun: "特定",
+          tags: ["カスタム"]
         });
       }
     }
     modalOverlay.classList.remove('active');
   });
 
-  // 初回起動
+  // 起動
   initGame();
 </script>
 </body>
